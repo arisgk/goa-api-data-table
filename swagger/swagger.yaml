@@ -1,0 +1,291 @@
+consumes:
+- application/json
+- application/xml
+- application/gob
+- application/x-gob
+definitions:
+  CreateUserPayload:
+    example:
+      age: 25
+      firstName: John
+      lastName: Doe
+    properties:
+      age:
+        description: Age
+        example: 25
+        maximum: 150
+        minimum: 18
+        type: integer
+      firstName:
+        description: First Name
+        example: John
+        type: string
+      lastName:
+        description: Last Name
+        example: Doe
+        type: string
+    required:
+    - firstName
+    - lastName
+    title: CreateUserPayload
+    type: object
+  DataTableUser:
+    description: A user (default view)
+    example:
+      age: 25
+      firstName: John
+      id: 123e4567-e89b-12d3-a456-426655440000
+      lastName: Doe
+    properties:
+      age:
+        description: Age
+        example: 25
+        maximum: 150
+        minimum: 18
+        type: integer
+      firstName:
+        description: First Name
+        example: John
+        type: string
+      id:
+        description: User unique identifier
+        example: 123e4567-e89b-12d3-a456-426655440000
+        type: string
+      lastName:
+        description: Last Name
+        example: Doe
+        type: string
+    required:
+    - id
+    - firstName
+    - lastName
+    title: 'Mediatype identifier: application/data.table.user; view=default'
+    type: object
+  DataTableUserCollection:
+    description: DataTableUserCollection is the media type for an array of DataTableUser
+      (default view)
+    example:
+    - age: 25
+      firstName: John
+      id: 123e4567-e89b-12d3-a456-426655440000
+      lastName: Doe
+    - age: 25
+      firstName: John
+      id: 123e4567-e89b-12d3-a456-426655440000
+      lastName: Doe
+    items:
+      $ref: '#/definitions/DataTableUser'
+    title: 'Mediatype identifier: application/data.table.user; type=collection; view=default'
+    type: array
+  UpdateUserPayload:
+    example:
+      age: 25
+      firstName: John
+      lastName: Doe
+    properties:
+      age:
+        description: Age
+        example: 25
+        maximum: 150
+        minimum: 18
+        type: integer
+      firstName:
+        description: First Name
+        example: John
+        type: string
+      lastName:
+        description: Last Name
+        example: Doe
+        type: string
+    title: UpdateUserPayload
+    type: object
+  error:
+    description: Error response media type (default view)
+    example:
+      code: invalid_value
+      detail: Value of ID must be an integer
+      id: 3F1FKVRR
+      meta:
+        timestamp: 1.458609066e+09
+      status: "400"
+    properties:
+      code:
+        description: an application-specific error code, expressed as a string value.
+        example: invalid_value
+        type: string
+      detail:
+        description: a human-readable explanation specific to this occurrence of the
+          problem.
+        example: Value of ID must be an integer
+        type: string
+      id:
+        description: a unique identifier for this particular occurrence of the problem.
+        example: 3F1FKVRR
+        type: string
+      meta:
+        additionalProperties: true
+        description: a meta object containing non-standard meta-information about
+          the error.
+        example:
+          timestamp: 1.458609066e+09
+        type: object
+      status:
+        description: the HTTP status code applicable to this problem, expressed as
+          a string value.
+        example: "400"
+        type: string
+    title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+    type: object
+host: localhost:5000
+info:
+  description: Simple CRUD API implemented with goa
+  title: Data Table API
+  version: ""
+paths:
+  /api/users:
+    get:
+      description: Retrieve all users.
+      operationId: user#list
+      produces:
+      - application/data.table.user; type=collection
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/DataTableUserCollection'
+      schemes:
+      - http
+      summary: list user
+      tags:
+      - user
+    post:
+      description: Create new user
+      operationId: user#create
+      parameters:
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/CreateUserPayload'
+      produces:
+      - application/vnd.goa.error
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: create user
+      tags:
+      - user
+  /api/users/{userID}:
+    delete:
+      operationId: user#delete
+      parameters:
+      - description: User ID
+        in: path
+        name: userID
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+      schemes:
+      - http
+      summary: delete user
+      tags:
+      - user
+    get:
+      description: Retrieve user with given id.
+      operationId: user#show
+      parameters:
+      - description: User ID
+        in: path
+        name: userID
+        required: true
+        type: string
+      produces:
+      - application/data.table.user
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/DataTableUser'
+        "404":
+          description: Not Found
+      schemes:
+      - http
+      summary: show user
+      tags:
+      - user
+    put:
+      description: Update a user
+      operationId: user#update
+      parameters:
+      - description: User ID
+        in: path
+        name: userID
+        required: true
+        type: string
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/UpdateUserPayload'
+      produces:
+      - application/vnd.goa.error
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+      schemes:
+      - http
+      summary: update user
+      tags:
+      - user
+  /swagger.json:
+    get:
+      operationId: swagger#/swagger.json
+      responses:
+        "200":
+          description: File downloaded
+          schema:
+            type: file
+      schemes:
+      - http
+      summary: Download public/swagger/swagger.json
+produces:
+- application/json
+- application/xml
+- application/gob
+- application/x-gob
+responses:
+  Created:
+    description: Created
+  NoContent:
+    description: No Content
+  NotFound:
+    description: Not Found
+  OK:
+    description: OK
+    schema:
+      $ref: '#/definitions/DataTableUser'
+schemes:
+- http
+swagger: "2.0"

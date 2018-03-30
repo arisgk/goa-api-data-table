@@ -11,7 +11,7 @@ var _ = Resource("user", func() {
 
 	Action("list", func() {
 		Routing(
-			GET("")
+			GET(""),
 		)
 		Description("Retrieve all users.")
 		Response(OK, CollectionOf(User))
@@ -19,7 +19,7 @@ var _ = Resource("user", func() {
 
 	Action("show", func() {
 		Routing(
-			GET("/:userID")
+			GET("/:userID"),
 		)
 		Description("Retrieve user with given id.")
 		Params(func() {
@@ -31,7 +31,7 @@ var _ = Resource("user", func() {
 
 	Action("create", func() {
 		Routing(
-			POST("")
+			POST(""),
 		)
 		Description("Create new user")
 		Payload(func() {
@@ -39,14 +39,14 @@ var _ = Resource("user", func() {
 			Member("lastName")
 			Member("age")
 			Required("firstName", "lastName")
-			Response(Created)
-			Response(BadRequest, ErrorMedia)
 		})
+		Response(Created)
+		Response(BadRequest, ErrorMedia)
 	})
 
 	Action("update", func() {
 		Routing(
-			PUT("/:userID")
+			PUT("/:userID"),
 		)
 		Description("Update a user")
 		Params(func() {
@@ -64,7 +64,7 @@ var _ = Resource("user", func() {
 
 	Action("delete", func() {
 		Routing(
-			DELETE("/:userID")
+			DELETE("/:userID"),
 		)
 		Params(func() {
 			Param("userID", String, "User ID")

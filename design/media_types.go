@@ -12,9 +12,9 @@ var User = MediaType("application/data.table.user", func() {
 		Attribute("id", String, "User unique identifier", func() {
 			Example("123e4567-e89b-12d3-a456-426655440000")
 		})
-		Attribute("firstName", String, "First Name"), func() {
+		Attribute("firstName", String, "First Name", func() {
 			Example("John")
-		}
+		})
 		Attribute("lastName", String, "Last Name", func() {
 			Example("Doe")
 		})
@@ -25,5 +25,12 @@ var User = MediaType("application/data.table.user", func() {
 		})
 
 		Required("id", "firstName", "lastName")
+	})
+
+	View("default", func() {
+		Attribute("id")
+		Attribute("firstName")
+		Attribute("lastName")
+		Attribute("age")
 	})
 })
