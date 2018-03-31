@@ -6,7 +6,7 @@ import (
 )
 
 var _ = Resource("user", func() {
-	DefaultMedia(User)
+	DefaultMedia(UserMedia)
 	BasePath("/users")
 
 	Action("list", func() {
@@ -14,7 +14,7 @@ var _ = Resource("user", func() {
 			GET(""),
 		)
 		Description("Retrieve all users.")
-		Response(OK, CollectionOf(User))
+		Response(OK, CollectionOf(UserMedia))
 	})
 
 	Action("show", func() {
@@ -40,7 +40,7 @@ var _ = Resource("user", func() {
 			Member("age")
 			Required("firstName", "lastName")
 		})
-		Response(Created)
+		Response(Created, UserMedia)
 		Response(BadRequest, ErrorMedia)
 	})
 

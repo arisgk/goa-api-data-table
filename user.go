@@ -3,7 +3,18 @@ package main
 import (
 	"github.com/arisgk/goa-api-data-table/app"
 	"github.com/goadesign/goa"
+	"github.com/satori/go.uuid"
+	. "github.com/arisgk/goa-api-data-table/entities/user"
 )
+
+func ToUserMedia(user User) *app.User {
+	return &app.User {
+		ID: user.Id.String(),
+		FirstName: user.FirstName,
+		LastName: user.LastName,
+		Age: &user.Age,
+	}
+}
 
 // UserController implements the user resource.
 type UserController struct {
@@ -19,9 +30,18 @@ func NewUserController(service *goa.Service) *UserController {
 func (c *UserController) Create(ctx *app.CreateUserContext) error {
 	// UserController_Create: start_implement
 
-	// Put your logic here
+	payload := ctx.Payload
+	user := User {
+		Id: uuid.Must(uuid.NewV4()),
+		FirstName: payload.FirstName,
+		LastName: payload.LastName,
+	}
 
-	return nil
+	if payload.Age != nil {
+		user.Age = *payload.Age
+	}
+
+	return ctx.Created(ToUserMedia(user))
 	// UserController_Create: end_implement
 }
 
@@ -41,7 +61,7 @@ func (c *UserController) List(ctx *app.ListUserContext) error {
 
 	// Put your logic here
 
-	res := app.DataTableUserCollection{}
+	res := app.UserCollection{}
 	return ctx.OK(res)
 	// UserController_List: end_implement
 }
@@ -52,7 +72,7 @@ func (c *UserController) Show(ctx *app.ShowUserContext) error {
 
 	// Put your logic here
 
-	res := &app.DataTableUser{}
+	res := &app.User{}
 	return ctx.OK(res)
 	// UserController_Show: end_implement
 }

@@ -104,15 +104,16 @@ func CreateUserBadRequest(t goatest.TInterface, ctx context.Context, service *go
 }
 
 // CreateUserCreated runs the method Create of the given controller with the given parameters and payload.
-// It returns the response writer so it's possible to inspect the response headers.
+// It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func CreateUserCreated(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.UserController, payload *app.CreateUserPayload) http.ResponseWriter {
+func CreateUserCreated(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.UserController, payload *app.CreateUserPayload) (http.ResponseWriter, *app.User) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
+		resp   interface{}
 
-		respSetter goatest.ResponseSetterFunc = func(r interface{}) {}
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) { resp = r }
 	)
 	if service == nil {
 		service = goatest.Service(&logBuf, respSetter)
@@ -132,7 +133,7 @@ func CreateUserCreated(t goatest.TInterface, ctx context.Context, service *goa.S
 			panic(err) // bug
 		}
 		t.Errorf("unexpected payload validation error: %+v", e)
-		return nil
+		return nil, nil
 	}
 
 	// Setup request context
@@ -156,7 +157,7 @@ func CreateUserCreated(t goatest.TInterface, ctx context.Context, service *goa.S
 			panic("invalid test data " + __err.Error()) // bug
 		}
 		t.Errorf("unexpected parameter validation error: %+v", _e)
-		return nil
+		return nil, nil
 	}
 	createCtx.Payload = payload
 
@@ -170,9 +171,21 @@ func CreateUserCreated(t goatest.TInterface, ctx context.Context, service *goa.S
 	if rw.Code != 201 {
 		t.Errorf("invalid response status code: got %+v, expected 201", rw.Code)
 	}
+	var mt *app.User
+	if resp != nil {
+		var __ok bool
+		mt, __ok = resp.(*app.User)
+		if !__ok {
+			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.User", resp, resp)
+		}
+		__err = mt.Validate()
+		if __err != nil {
+			t.Errorf("invalid response media type: %s", __err)
+		}
+	}
 
 	// Return results
-	return rw
+	return rw, mt
 }
 
 // DeleteUserBadRequest runs the method Delete of the given controller with the given parameters.
@@ -370,7 +383,7 @@ func DeleteUserNotFound(t goatest.TInterface, ctx context.Context, service *goa.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func ListUserOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.UserController) (http.ResponseWriter, app.DataTableUserCollection) {
+func ListUserOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.UserController) (http.ResponseWriter, app.UserCollection) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -422,12 +435,12 @@ func ListUserOK(t goatest.TInterface, ctx context.Context, service *goa.Service,
 	if rw.Code != 200 {
 		t.Errorf("invalid response status code: got %+v, expected 200", rw.Code)
 	}
-	var mt app.DataTableUserCollection
+	var mt app.UserCollection
 	if resp != nil {
 		var _ok bool
-		mt, _ok = resp.(app.DataTableUserCollection)
+		mt, _ok = resp.(app.UserCollection)
 		if !_ok {
-			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.DataTableUserCollection", resp, resp)
+			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.UserCollection", resp, resp)
 		}
 		_err = mt.Validate()
 		if _err != nil {
@@ -504,7 +517,7 @@ func ShowUserNotFound(t goatest.TInterface, ctx context.Context, service *goa.Se
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func ShowUserOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.UserController, userID string) (http.ResponseWriter, *app.DataTableUser) {
+func ShowUserOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.UserController, userID string) (http.ResponseWriter, *app.User) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -557,12 +570,12 @@ func ShowUserOK(t goatest.TInterface, ctx context.Context, service *goa.Service,
 	if rw.Code != 200 {
 		t.Errorf("invalid response status code: got %+v, expected 200", rw.Code)
 	}
-	var mt *app.DataTableUser
+	var mt *app.User
 	if resp != nil {
 		var _ok bool
-		mt, _ok = resp.(*app.DataTableUser)
+		mt, _ok = resp.(*app.User)
 		if !_ok {
-			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.DataTableUser", resp, resp)
+			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.User", resp, resp)
 		}
 		_err = mt.Validate()
 		if _err != nil {

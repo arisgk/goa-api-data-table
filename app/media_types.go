@@ -16,8 +16,8 @@ import (
 
 // A user (default view)
 //
-// Identifier: application/data.table.user; view=default
-type DataTableUser struct {
+// Identifier: application/user; view=default
+type User struct {
 	// Age
 	Age *int `form:"age,omitempty" json:"age,omitempty" xml:"age,omitempty"`
 	// First Name
@@ -28,8 +28,8 @@ type DataTableUser struct {
 	LastName string `form:"lastName" json:"lastName" xml:"lastName"`
 }
 
-// Validate validates the DataTableUser media type instance.
-func (mt *DataTableUser) Validate() (err error) {
+// Validate validates the User media type instance.
+func (mt *User) Validate() (err error) {
 	if mt.ID == "" {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "id"))
 	}
@@ -52,13 +52,13 @@ func (mt *DataTableUser) Validate() (err error) {
 	return
 }
 
-// DataTableUserCollection is the media type for an array of DataTableUser (default view)
+// UserCollection is the media type for an array of User (default view)
 //
-// Identifier: application/data.table.user; type=collection; view=default
-type DataTableUserCollection []*DataTableUser
+// Identifier: application/user; type=collection; view=default
+type UserCollection []*User
 
-// Validate validates the DataTableUserCollection media type instance.
-func (mt DataTableUserCollection) Validate() (err error) {
+// Validate validates the UserCollection media type instance.
+func (mt UserCollection) Validate() (err error) {
 	for _, e := range mt {
 		if e != nil {
 			if err2 := e.Validate(); err2 != nil {

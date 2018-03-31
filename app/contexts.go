@@ -114,9 +114,11 @@ func (payload *CreateUserPayload) Validate() (err error) {
 }
 
 // Created sends a HTTP response with status code 201.
-func (ctx *CreateUserContext) Created() error {
-	ctx.ResponseData.WriteHeader(201)
-	return nil
+func (ctx *CreateUserContext) Created(r *User) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/user")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 201, r)
 }
 
 // BadRequest sends a HTTP response with status code 400.
@@ -192,12 +194,12 @@ func NewListUserContext(ctx context.Context, r *http.Request, service *goa.Servi
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *ListUserContext) OK(r DataTableUserCollection) error {
+func (ctx *ListUserContext) OK(r UserCollection) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/data.table.user; type=collection")
+		ctx.ResponseData.Header().Set("Content-Type", "application/user; type=collection")
 	}
 	if r == nil {
-		r = DataTableUserCollection{}
+		r = UserCollection{}
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }
@@ -228,9 +230,9 @@ func NewShowUserContext(ctx context.Context, r *http.Request, service *goa.Servi
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *ShowUserContext) OK(r *DataTableUser) error {
+func (ctx *ShowUserContext) OK(r *User) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/data.table.user")
+		ctx.ResponseData.Header().Set("Content-Type", "application/user")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }
