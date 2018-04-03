@@ -2,23 +2,26 @@ package main
 
 import (
 	"github.com/arisgk/goa-api-data-table/app"
+	user "github.com/arisgk/goa-api-data-table/entities/user"
+	store "github.com/arisgk/goa-api-data-table/store/user"
 	"github.com/goadesign/goa"
 	"github.com/satori/go.uuid"
-	. "github.com/arisgk/goa-api-data-table/entities/user"
 )
 
-func ToUserMedia(user User) *app.User {
-	return &app.User {
-		ID: user.Id.String(),
+// ToUserMedia converts a user entity to goa UserMedia
+func ToUserMedia(user user.User) *app.User {
+	return &app.User{
+		ID:        user.ID.String(),
 		FirstName: user.FirstName,
-		LastName: user.LastName,
-		Age: &user.Age,
+		LastName:  user.LastName,
+		Age:       &user.Age,
 	}
 }
 
 // UserController implements the user resource.
 type UserController struct {
-	*goa.Controller
+	*goa.Controller,
+	store *store.Store
 }
 
 // NewUserController creates a user controller.
@@ -31,15 +34,17 @@ func (c *UserController) Create(ctx *app.CreateUserContext) error {
 	// UserController_Create: start_implement
 
 	payload := ctx.Payload
-	user := User {
-		Id: uuid.Must(uuid.NewV4()),
+	user := user.User{
+		ID:        uuid.Must(uuid.NewV4()),
 		FirstName: payload.FirstName,
-		LastName: payload.LastName,
+		LastName:  payload.LastName,
 	}
 
 	if payload.Age != nil {
 		user.Age = *payload.Age
 	}
+
+	store.Create(user)
 
 	return ctx.Created(ToUserMedia(user))
 	// UserController_Create: end_implement

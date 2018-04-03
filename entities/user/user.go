@@ -4,9 +4,10 @@ import (
 	"github.com/satori/go.uuid"
 )
 
+// User entity. Encapsulates information about a user.
 type User struct {
-	Id uuid.UUID
+	ID        uuid.UUID
 	FirstName string
-	LastName string
-	Age int
+	LastName  string
+	Age       int
 }
