@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/arisgk/goa-api-data-table/app"
 	"github.com/arisgk/goa-api-data-table/entities"
 	"github.com/arisgk/goa-api-data-table/store"
@@ -11,7 +13,7 @@ import (
 // ToUserMedia converts a user entity to goa UserMedia
 func ToUserMedia(user entities.User) *app.User {
 	return &app.User{
-		ID:        user.ID.String(),
+		ID:        user.ID,
 		FirstName: user.FirstName,
 		LastName:  user.LastName,
 		Age:       &user.Age,
@@ -21,12 +23,12 @@ func ToUserMedia(user entities.User) *app.User {
 // UserController implements the user resource.
 type UserController struct {
 	*goa.Controller
-	Store store.Store
+	store store.Store
 }
 
 // NewUserController creates a user controller.
 func NewUserController(service *goa.Service, store store.Store) *UserController {
-	return &UserController{Controller: service.NewController("UserController"), Store: store}
+	return &UserController{Controller: service.NewController("UserController"), store: store}
 }
 
 // Create runs the create action.
@@ -35,7 +37,7 @@ func (c *UserController) Create(ctx *app.CreateUserContext) error {
 
 	payload := ctx.Payload
 	user := entities.User{
-		ID:        uuid.Must(uuid.NewV4()),
+		ID:        uuid.Must(uuid.NewV4()).String(),
 		FirstName: payload.FirstName,
 		LastName:  payload.LastName,
 	}
@@ -44,7 +46,13 @@ func (c *UserController) Create(ctx *app.CreateUserContext) error {
 		user.Age = *payload.Age
 	}
 
-	c.Store.Create(user)
+	fmt.Println(c.store)
+
+	_, err := c.store.Create(user)
+
+	if err != nil {
+		return goa.ErrInternal(err)
+	}
 
 	return ctx.Created(ToUserMedia(user))
 	// UserController_Create: end_implement

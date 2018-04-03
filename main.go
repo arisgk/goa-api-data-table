@@ -3,6 +3,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/arisgk/goa-api-data-table/app"
 	"github.com/arisgk/goa-api-data-table/store/mongodb"
 	"github.com/goadesign/goa"
@@ -20,10 +22,12 @@ func main() {
 	service.Use(middleware.Recover())
 
 	// Initialize Store
-	store, err := mongodb.CreateStore("mongodb://api:St@rl1ght!@ds231559.mlab.com:31559/goa-simple-crud")
+	store, err := mongodb.CreateStore("mongodb://api:Starl1ght@ds231559.mlab.com:31559/goa-simple-crud")
 	if err != nil {
 		service.LogError("startup", "err", err)
 	}
+
+	fmt.Printf("%v", store)
 
 	// Mount "swagger" controller
 	c := NewSwaggerController(service)

@@ -2,12 +2,11 @@ package mongodb
 
 import (
 	"context"
-	"log"
 
 	"github.com/arisgk/goa-api-data-table/entities"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/mongodb/mongo-go-driver/mongo"
 	"github.com/mongodb/mongo-go-driver/mongo/connstring"
-	uuid "github.com/satori/go.uuid"
 )
 
 // MongoDB struct encapsulates MongoDB connection information
@@ -19,6 +18,9 @@ type MongoDB struct {
 // CreateStore creates a new MongoDB instance
 func CreateStore(uri string) (store *MongoDB, err error) {
 	connString, err := connstring.Parse(uri)
+
+	spew.Dump(connString)
+
 	if err != nil {
 		return nil, err
 	}
@@ -31,27 +33,27 @@ func CreateStore(uri string) (store *MongoDB, err error) {
 
 	store = &MongoDB{
 		Client:   client,
-		Database: client.Database("users"),
+		Database: client.Database("goa-simple-crud"),
 	}
 
 	return store, nil
 }
 
 // Create inserts a user record into MongoDB
-func (mongo MongoDB) Create(user entities.User) uuid.UUID {
+func (mongo MongoDB) Create(user entities.User) (string, error) {
 	collection := mongo.Database.Collection("users")
 
 	_, err := collection.InsertOne(context.Background(), user)
 
 	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
 
-	return user.ID
+	return user.ID, nil
 }
 
 // Read gets a user record from MongoDB by ID
-func (mongo MongoDB) Read(id uuid.UUID) entities.User {
+func (mongo MongoDB) Read(id string) entities.User {
 	return entities.User{}
 }
 
@@ -66,6 +68,6 @@ func (mongo MongoDB) Update(user entities.User) entities.User {
 }
 
 // Delete deletes a user record from MongoDB
-func (mongo MongoDB) Delete(id uuid.UUID) uuid.UUID {
+func (mongo MongoDB) Delete(id string) string {
 	return id
 }
