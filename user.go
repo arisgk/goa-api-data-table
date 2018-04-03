@@ -2,14 +2,14 @@ package main
 
 import (
 	"github.com/arisgk/goa-api-data-table/app"
-	user "github.com/arisgk/goa-api-data-table/entities/user"
-	store "github.com/arisgk/goa-api-data-table/store/user"
+	"github.com/arisgk/goa-api-data-table/entities"
+	"github.com/arisgk/goa-api-data-table/store"
 	"github.com/goadesign/goa"
 	"github.com/satori/go.uuid"
 )
 
 // ToUserMedia converts a user entity to goa UserMedia
-func ToUserMedia(user user.User) *app.User {
+func ToUserMedia(user entities.User) *app.User {
 	return &app.User{
 		ID:        user.ID.String(),
 		FirstName: user.FirstName,
@@ -20,13 +20,13 @@ func ToUserMedia(user user.User) *app.User {
 
 // UserController implements the user resource.
 type UserController struct {
-	*goa.Controller,
-	store *store.Store
+	*goa.Controller
+	Store store.Store
 }
 
 // NewUserController creates a user controller.
-func NewUserController(service *goa.Service) *UserController {
-	return &UserController{Controller: service.NewController("UserController")}
+func NewUserController(service *goa.Service, store store.Store) *UserController {
+	return &UserController{Controller: service.NewController("UserController"), Store: store}
 }
 
 // Create runs the create action.
@@ -34,7 +34,7 @@ func (c *UserController) Create(ctx *app.CreateUserContext) error {
 	// UserController_Create: start_implement
 
 	payload := ctx.Payload
-	user := user.User{
+	user := entities.User{
 		ID:        uuid.Must(uuid.NewV4()),
 		FirstName: payload.FirstName,
 		LastName:  payload.LastName,
@@ -44,7 +44,7 @@ func (c *UserController) Create(ctx *app.CreateUserContext) error {
 		user.Age = *payload.Age
 	}
 
-	store.Create(user)
+	c.Store.Create(user)
 
 	return ctx.Created(ToUserMedia(user))
 	// UserController_Create: end_implement

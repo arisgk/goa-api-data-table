@@ -4,6 +4,7 @@ package main
 
 import (
 	"github.com/arisgk/goa-api-data-table/app"
+	"github.com/arisgk/goa-api-data-table/store/mongodb"
 	"github.com/goadesign/goa"
 	"github.com/goadesign/goa/middleware"
 )
@@ -18,11 +19,17 @@ func main() {
 	service.Use(middleware.ErrorHandler(service, true))
 	service.Use(middleware.Recover())
 
+	// Initialize Store
+	store, err := mongodb.CreateStore("mongodb://api:St@rl1ght!@ds231559.mlab.com:31559/goa-simple-crud")
+	if err != nil {
+		service.LogError("startup", "err", err)
+	}
+
 	// Mount "swagger" controller
 	c := NewSwaggerController(service)
 	app.MountSwaggerController(service, c)
 	// Mount "user" controller
-	c2 := NewUserController(service)
+	c2 := NewUserController(service, store)
 	app.MountUserController(service, c2)
 
 	// Start service
